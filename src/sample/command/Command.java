@@ -13,7 +13,7 @@ public class Command {
 
     public static final byte[] COMMAND_START = {':'};
     public static final byte[] COMMAND_END = {'\r', '\n'};
-    public static final int EMPTY_COMMAND_SIZE = COMMAND_START.length + 2 + COMMAND_END.length;
+    public static final int EMPTY_COMMAND_LENGTH = COMMAND_START.length + 2 + COMMAND_END.length;
 
     private byte key;
     private List<Argument> arguments;
@@ -31,7 +31,7 @@ public class Command {
     public byte[] serialize() {
         int argsSize = 0;
         for (Argument argument : arguments) argsSize += argument.serialize().length;
-        ByteBuffer buffer = ByteBuffer.allocate(EMPTY_COMMAND_SIZE + argsSize).put(COMMAND_START).put(key).put((byte) arguments.size());
+        ByteBuffer buffer = ByteBuffer.allocate(EMPTY_COMMAND_LENGTH + argsSize).put(COMMAND_START).put(key).put((byte) arguments.size());
         for (Argument argument : arguments) {
             buffer.put(argument.serialize());
         }
@@ -39,13 +39,13 @@ public class Command {
     }
 
     public static Command deserialize(byte[] bytes) {
-        if (bytes.length < EMPTY_COMMAND_SIZE) return null;
+        if (bytes.length < EMPTY_COMMAND_LENGTH) return null;
         int pos = COMMAND_START.length;
         byte key = bytes[pos++];
         byte argsCount = bytes[pos++];
         List<Argument> arguments = new ArrayList<>(argsCount);
         for (int i = 0; i < argsCount; i++) {
-            int argSize = bytes[pos + 1];
+            int argSize = bytes[pos + Argument.SIZE];
             if (pos + Argument.OFFSET + argSize + COMMAND_END.length > bytes.length || argSize < 0) return null;
             byte[] arg = Arrays.copyOfRange(bytes, pos, pos + Argument.OFFSET + argSize);
             arguments.add(new Argument(arg));

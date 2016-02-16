@@ -7,20 +7,20 @@ import java.util.Arrays;
  */
 public class Parser {
 
+    //TODO: in data array may be few commands! Return List of Commands
+
     public static final int NOT_FIND = -1;
 
     private byte[] buffer = new byte[0];
 
     public Command parse(byte[] data) {
         if (buffer.length == 0) {
-            int start = -1;
             for (int i = 0; i < data.length; i++) {
-                if (data[i] == Command.COMMAND_START[0]) {
-                    start = i;
+                if (data[i] == Command.COMMAND_START[0]) {//TODO: while i < data.length parse other
+                    buffer = Arrays.copyOfRange(data, i, data.length);//TODO: check
                     break;
                 }
             }
-            if (start != -1) buffer = Arrays.copyOfRange(data, start, data.length);
         } else {
             byte[] newBuffer = new byte[buffer.length + data.length];
             System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
@@ -29,7 +29,7 @@ public class Parser {
         }
 
         for (int start = searchStart(0); start != NOT_FIND; start = searchStart(start + 1)) {
-            for (int end = searchEnd(start + Command.EMPTY_COMMAND_SIZE - 1); end != NOT_FIND; end = searchEnd(end + 1)) {
+            for (int end = searchEnd(start + Command.EMPTY_COMMAND_LENGTH - 1); end != NOT_FIND; end = searchEnd(end + 1)) {
                 Command command = Command.deserialize(Arrays.copyOfRange(buffer, start, end + 1));
                 if (command != null) {
                     System.out.println(buffer.length);
