@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Command {
 
-    public static final byte[] COMMAND_START = {':'};
+    public static final byte[] COMMAND_START = {':', ':'};//TODO:
     public static final byte[] COMMAND_END = {'\r', '\n'};
     public static final int EMPTY_COMMAND_LENGTH = COMMAND_START.length + 2 + COMMAND_END.length;
 

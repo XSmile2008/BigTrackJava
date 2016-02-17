@@ -121,6 +121,7 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
                 } else if (event.getSource().equals(buttonRight)) {
                     command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.RIGHT));
                 }
+                System.out.println(Arrays.toString(command.serialize()));
                 connection.send(command.serialize());
             }
         };
@@ -183,10 +184,9 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
 
     @Override
     public void onReceive(byte[] data) {
-        Command command = commandParser.parse(data);
-        if (command != null) {
+        for (Command command : commandParser.parse(data)) {
             System.out.println(Arrays.toString(command.serialize()));
-            if (command.getArguments().size() > 0) {
+            if (command.getKey() == 'T' && command.getArguments().size() > 0) {
                 try {
                     compass.setAzimuth(command.getArguments().get(0).getFloat());
                 } catch (ValueSizeException e) {
