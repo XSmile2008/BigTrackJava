@@ -17,11 +17,13 @@ import sample.connection.IOnReceiveListener;
 import sample.connection.IOnSendListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by vladstarikov on 25.03.16.
  */
-public class Messenger extends VBox implements IOnReceiveListener, IOnSendListener{
+public class Messenger extends VBox implements IOnReceiveListener, IOnSendListener {
 
     private Connection connection;
 
@@ -30,16 +32,7 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
     @FXML private ScrollPane scrollPane;
 
     public Messenger() {
-        initFXML();
-    }
-
-    public Messenger(Connection connection) {
-        initFXML();
-        this.connection = connection;
-    }
-
-    private void initFXML() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("layout/messenger.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("punyan/messenger.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
@@ -50,6 +43,10 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
         }
     }
 
+    public Messenger(Connection connection) {
+        this.connection = connection;
+    }
+
     public void setConnection(Connection connection) {
         this.connection = connection;
     }
@@ -57,9 +54,7 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
     @Override
     public void onSend(byte[] data) {
         Platform.runLater(() -> {
-            Text text = new Text(new String(data));
-            text.setFill(Color.DARKRED);
-            textFlow.getChildren().add(text);
+            textFlow.getChildren().addAll(toPrintable(data, Color.DARKRED, Color.DARKORANGE));
             scrollPane.setVvalue(scrollPane.getVmax());
         });
     }
@@ -67,20 +62,49 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
     @Override
     public void onReceive(byte[] data) {
         Platform.runLater(() -> {//TODO: replace invisible symbols by code \n\r or \13\10
-            Text text = new Text(new String(data));
-            text.setFill(Color.FORESTGREEN);
-            textFlow.getChildren().add(text);
+            textFlow.getChildren().addAll(toPrintable(data, Color.FORESTGREEN, Color.DARKORANGE));
             scrollPane.setVvalue(scrollPane.getVmax());
         });
     }
 
     @FXML
     protected void sendFromTextField(Event event) {
-        if (event instanceof KeyEvent && ((KeyEvent)event).getCode() != KeyCode.ENTER) return;
+        if (event instanceof KeyEvent && ((KeyEvent) event).getCode() != KeyCode.ENTER) return;
         if (connection != null && connection.isOpen() && textFieldOutput.getText().length() > 0) {
             connection.send(textFieldOutput.getText());//TODO: add "\r\n"
             textFieldOutput.setText(null);
         }
+    }
+
+    @FXML
+    protected void clear() {
+        textFlow.getChildren().clear();
+    }
+
+    private List<Text> toPrintable(byte[] data, Color plaintext, Color invisible) {
+        List<Text> result = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        for (byte b : data) {
+            if ((b >= 32 && b <= 126) || b == 10 || b == 13) {
+                builder.append((char) b);
+            } else {
+                if (builder.length() > 0) {
+                    Text text = new Text(builder.toString());
+                    text.setFill(plaintext);
+                    result.add(text);
+                    builder.delete(0, builder.length());
+                }
+                Text text = new Text("\\" + b);
+                text.setFill(invisible);
+                result.add(text);
+            }
+        }
+        if (builder.length() > 0) {
+            Text text = new Text(builder.toString());
+            text.setFill(plaintext);
+            result.add(text);
+        }
+        return result;
     }
 
 }
