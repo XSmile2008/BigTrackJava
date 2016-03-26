@@ -1,6 +1,5 @@
 package sample.command;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,20 +28,20 @@ public class Parser {
 
         List<Command> commands = new ArrayList<>();
         while (true) {
-            System.out.println(buffer.length);
+            System.out.println("Buffer length = " + buffer.length);//TODO: remove
             Command command = searchCommand();
-            if (command != null) {
-                commands.add(command);
-                System.out.println(Arrays.toString(command.serialize()));
-            } else break;
+            if (command != null) commands.add(command);
+            else break;
         }
         return commands;
     }
 
-    /** used for trim buffer
-     *  to cut off unused data from start of @buffer,
-     *  and delete already parsed commands
-     *  @param from search from this position to find new command start, if not find delete all buffer
+    /**
+     * used for trim buffer
+     * to cut off unused data from start of @buffer,
+     * and delete already parsed commands
+     *
+     * @param from search from this position to find new command start, if not find delete all buffer
      */
     private void trim(int from) {
         int start = searchStart(buffer, from);
@@ -50,13 +49,13 @@ public class Parser {
         else if (start != 0) buffer = Arrays.copyOfRange(buffer, start, buffer.length);
     }
 
-    private int searchStart(byte[] buffer, int from) {//TODO: use this to find parts of start
+    private int searchStart(byte[] buffer, int from) {
         //if (from + Command.COMMAND_START.length > buffer.length) return NOT_FIND;//TODO: may be useful, add bool parameter
-        for (int i  = from; i < buffer.length; i++) {
+        for (int i = from; i < buffer.length; i++) {
             if (buffer[i] == Command.COMMAND_START[0]) {
                 int errors = 0;
                 int overflow = (i + Command.COMMAND_START.length) - buffer.length;
-                for (int j = 1; j < Command.COMMAND_START.length - (overflow > 0 ? overflow : 0); j++) {//TODO: check range
+                for (int j = 1; j < Command.COMMAND_START.length - (overflow > 0 ? overflow : 0); j++) {
                     if (buffer[i + j] != Command.COMMAND_START[j]) errors++;
                 }
                 if (errors == 0) return i;
@@ -67,7 +66,7 @@ public class Parser {
 
     private int searchEnd(byte[] buffer, int from) {
         from = from - Command.COMMAND_END.length >= 0 ? from : Command.COMMAND_END.length;
-        for (int i  = from; i < buffer.length; i++) {
+        for (int i = from; i < buffer.length; i++) {
             if (buffer[i] == Command.COMMAND_END[Command.COMMAND_END.length - 1]) {
                 int bytesMatch = 0;
                 for (int j = 0; j < Command.COMMAND_END.length; j++) {

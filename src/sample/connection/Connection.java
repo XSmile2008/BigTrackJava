@@ -1,39 +1,42 @@
 package sample.connection;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by vladstarikov on 06.02.16.
  */
 public abstract class Connection {
 
-    protected OnReceiveListener onReceiveListener;
-    protected OnSendListener onSendListener;
+    protected Set<IOnReceiveListener> onReceiveListeners = new HashSet<>();
+    protected Set<IOnSendListener> onSendListeners = new HashSet<>();
 
     public void send(byte[] data) {
-        if (onSendListener != null) {
+        for (IOnSendListener onSendListener : onSendListeners) {
             onSendListener.onSend(data);
         }
     }
 
     public void send(String data) {
-        if (onSendListener != null) {
+        for (IOnSendListener onSendListener : onSendListeners) {
             onSendListener.onSend(data.getBytes());
         }
     }
 
-    public void addOnReceiveListener(OnReceiveListener listener) {
-        onReceiveListener = listener;
+    public void addOnReceiveListener(IOnReceiveListener listener) {
+        onReceiveListeners.add(listener);
     }
 
-    public void removeOnReceiveListener() {
-        onReceiveListener = null;
+    public void removeOnReceiveListener(IOnReceiveListener listener) {
+        onReceiveListeners.remove(listener);
     }
 
-    public void addOnSendListener(OnSendListener listener) {
-        onSendListener = listener;
+    public void addOnSendListener(IOnSendListener listener) {
+        onSendListeners.add(listener);
     }
 
-    public void removeOnSendListener() {
-        onSendListener = null;
+    public void removeOnSendListener(IOnSendListener listener) {
+        onSendListeners.remove(listener);
     }
 
     public abstract void close();

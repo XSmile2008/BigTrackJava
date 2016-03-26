@@ -1,36 +1,30 @@
 package sample;
 
 import com.fazecast.jSerialComm.SerialPort;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import sample.CompassView.CompassView;
 import sample.command.*;
 import sample.connection.Connection;
-import sample.connection.OnReceiveListener;
-import sample.connection.OnSendListener;
+import sample.connection.IOnReceiveListener;
+import sample.connection.IOnSendListener;
 import sample.connection.SerialConnection;
+import sample.view.CompassView;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable, OnSendListener, OnReceiveListener {
+public class MainController implements Initializable, IOnSendListener, IOnReceiveListener {
 
-    public static final int WIFI = 1;
-    public static final int SERIAL = 2;
+    private static final int WIFI = 1;
+    private static final int SERIAL = 2;
 
     @FXML Button buttonStop;
     @FXML Button buttonForward;
@@ -51,20 +45,24 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
 
     @FXML Label labelConnectionStatus;
 
-    @FXML TextField textFieldOutput;
-    @FXML ScrollPane textFlowContainer;
-
     @FXML VBox vBoxLeft;
 
-    CompassView compass;
+    @FXML
+    Messenger messenger = new Messenger();
+    private CompassView compass;
 
-    Connection connection;
+    private Connection connection;
     int connectionType = SERIAL;
-
-    Parser commandParser = new Parser();
+    private Parser commandParser = new Parser();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        initConnectionOptions();
+        initMotionControl();
+        vBoxLeft.getChildren().add(compass = new CompassView());
+    }
+
+    private void initConnectionOptions() {
         //Toggle group connection type
         toggleGroupConnectionType.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -106,7 +104,10 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
             List<Toggle> toggleList = toggleGroupSerialPort.getToggles();
             if (toggleList.size() > 0) toggleList.get(0).setSelected(true);
         }
+    }
 
+    private void initMotionControl() {
+        //Motion control
         EventHandler<ActionEvent> moveEventHandler = event -> {
             if (connection != null && connection.isOpen()) {
                 Command command = null;
@@ -136,8 +137,6 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
             compass.setAzimuth(newValue.doubleValue());
 
         });
-
-        vBoxLeft.getChildren().add(compass = new CompassView());
     }
 
     @FXML
@@ -151,6 +150,9 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
             connection = new SerialConnection(serialPort, baudRate);
             connection.addOnSendListener(this);
             connection.addOnReceiveListener(this);
+            connection.addOnSendListener(messenger);
+            connection.addOnReceiveListener(messenger);
+            messenger.setConnection(connection);
             labelConnectionStatus.setTextFill(Color.FORESTGREEN);
             labelConnectionStatus.setText("connected to " + connection.getTargetName());
         }
@@ -163,23 +165,9 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
         labelConnectionStatus.setText("not connected");
     }
 
-    @FXML
-    protected void sendFromTextField(Event event) {
-        if (event instanceof KeyEvent && ((KeyEvent)event).getCode() != KeyCode.ENTER) return;
-        if (connection != null && connection.isOpen() && textFieldOutput.getText().length() > 0) {
-            connection.send(textFieldOutput.getText());//TODO: add "\r\n"
-            textFieldOutput.setText(null);
-        }
-    }
-
     @Override
     public void onSend(byte[] data) {
-        Platform.runLater(() -> {
-            Text text = new Text(new String(data));
-            text.setFill(Color.DARKRED);
-            ((TextFlow)textFlowContainer.getContent()).getChildren().add(text);
-            textFlowContainer.setVvalue(textFlowContainer.getVmax());
-        });
+
     }
 
     @Override
@@ -194,11 +182,5 @@ public class Controller implements Initializable, OnSendListener, OnReceiveListe
                 }
             }
         }
-        Platform.runLater(() -> {
-            Text text = new Text(new String(data));
-            text.setFill(Color.FORESTGREEN);
-            ((TextFlow)textFlowContainer.getContent()).getChildren().add(text);
-            textFlowContainer.setVvalue(textFlowContainer.getVmax());
-        });
     }
 }

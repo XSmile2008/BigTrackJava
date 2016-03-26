@@ -1,4 +1,4 @@
-package sample.CompassView;
+package sample.view;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Group;

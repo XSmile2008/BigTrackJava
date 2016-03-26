@@ -15,17 +15,22 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("layout/main.fxml"));
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
 
-    static Parser parser = new Parser();
     public static void main(String[] args) {
-        //launch(args);
+        launch(args);
+    }
+
+    public static void parserTest() {
+        Parser parser = new Parser();
+
         parser.parse("Boot complete, free memory: ".getBytes());
         parser.parse("Initialising chassis, free memory: \r\n".getBytes());
+
         Command command1 = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.FORWARD));
         byte[] serialized1 = command1.serialize();
 

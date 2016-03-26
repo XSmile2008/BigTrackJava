@@ -31,7 +31,9 @@ public class SerialConnection extends Connection {
                     if (serialPortEvent.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) return;
                     byte[] newData = new byte[serialPortEvent.getSerialPort().bytesAvailable()];
                     serialPortEvent.getSerialPort().readBytes(newData, newData.length);
-                    if (onReceiveListener != null) onReceiveListener.onReceive(newData);
+                    for (IOnReceiveListener onReceiveListener : onReceiveListeners) {
+                        onReceiveListener.onReceive(newData);
+                    }
                 }
             });
         } else {
