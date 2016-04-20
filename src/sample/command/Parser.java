@@ -9,13 +9,21 @@ import java.util.List;
  */
 public class Parser {
 
-    //TODO: in data array may be few commands! Return List of Commands
+    private static final int NOT_FIND = -1;
 
-    public static final int NOT_FIND = -1;
-
+    private int maxBufferLength;
     private byte[] buffer = new byte[0];
 
+    public Parser() {
+        maxBufferLength = 128;
+    }
+
+    public Parser(int maxBufferLength) {
+        this.maxBufferLength = maxBufferLength;
+    }
+
     public List<Command> parse(byte[] data) {
+        if (buffer.length > maxBufferLength) trim(buffer.length / 2);//TODO: test this and add in Arduino side
         if (buffer.length == 0) {
             int start = searchStart(data, 0);
             if (start != NOT_FIND) buffer = Arrays.copyOfRange(data, start, data.length);//TODO: check

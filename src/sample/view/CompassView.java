@@ -14,18 +14,22 @@ import javafx.scene.text.Text;
  */
 public class CompassView extends Group {
 
+    private double size;
     private double angleOffset = 90;
 
-    private Group pointer;
+    private Pointer azimuthPointer;
 
     public CompassView() {
-        //this.getChildren().add(createBackground());
+        size = 240;
+        azimuthPointer = new Pointer(size/2);
+        this.getChildren().add(azimuthPointer);
+        draw();
+    }
 
-        int radius = 120;
-        pointer = createPointer(0, radius);
-        this.getChildren().add(createOuterRim(radius));
-        this.getChildren().add(createTicks(12, 2, radius, radius + 10, radius + 18));
-        this.getChildren().add(pointer);
+    private void draw() {
+        double radius = size / 2;
+        drawOuterRim(radius);
+        drawTicks(12, 2, radius, radius + 10, radius + 18);
     }
 
     private Point2D polarToDecart(double angle, double distance) {
@@ -33,16 +37,16 @@ public class CompassView extends Group {
         return new Point2D(distance * Math.cos(r), distance * Math.sin(r));
     }
 
-    private Circle createOuterRim(double radius) {
+    private void drawOuterRim(double radius) {
         Circle circle = new Circle(radius, Color.TRANSPARENT);
         circle.setStroke(Color.BLACK);
-        return circle;
+        this.getChildren().add(circle);
     }
 
-    private Group createTicks(int majorTicks, int minorTicks, double startRadius, double endRadius, double labelsRadius) {
+    private void drawTicks(int major, int minor, double startRadius, double endRadius, double labelsRadius) {
         Group groupTicks = new Group();
-        double majorTickStep = 360. / majorTicks;
-        for (int i = 0; i < majorTicks; i++) {
+        double majorTickStep = 360. / major;
+        for (int i = 0; i < major; i++) {
             //Lines
             double majorAngle = i * majorTickStep - angleOffset;
             Point2D startPos = polarToDecart(majorAngle, startRadius);
@@ -60,33 +64,50 @@ public class CompassView extends Group {
             groupTicks.getChildren().add(text);
 
             //MinorTicks
-            double minorTickStep = majorTickStep / (minorTicks + 1);
-            for (int j = 1; j <= minorTicks; j++) {
+            double minorTickStep = majorTickStep / (minor + 1);
+            for (int j = 1; j <= minor; j++) {
                 startPos = polarToDecart(majorAngle + j * minorTickStep, startRadius);
                 endPos = polarToDecart(majorAngle + j * minorTickStep, endRadius - 2);
                 groupTicks.getChildren().add(new Line(startPos.getX(), startPos.getY(), endPos.getX(), endPos.getY()));
             }
         }
-        return groupTicks;
-    }
-
-    private Group createPointer(double angle, double radius) {
-        Group pointer = new Group();
-        pointer.resize(240, 240);
-        System.out.println(angle);
-        angle = 360 - angle + angleOffset - 10;
-        System.out.println(angle);
-        Arc arc = new Arc(0, 0, radius, radius, angle, 20);
-        arc.setStroke(Color.BLUE);
-        arc.setStrokeWidth(3);
-        arc.setType(ArcType.OPEN);
-        pointer.getChildren().add(arc);
-        return pointer;
+        this.getChildren().add(groupTicks);
     }
 
     public void setAzimuth(double azimuth) {
-        Arc arc = (Arc) pointer.getChildren().get(0);
-        arc.setStartAngle(360 - azimuth + angleOffset - 10);
+        azimuthPointer.setAngle(azimuth);
+    }
+
+    private class Pointer extends Group {
+
+        private double angle = 0;
+
+        Pointer(double radius) {
+            draw(radius);
+        }
+
+        double getAngle() {
+            return angle;
+        }
+
+        void setAngle(double angle) {
+            this.angle = angle;
+            Arc arc = (Arc) this.getChildren().get(0);
+            arc.setStartAngle(360 - angle + angleOffset - 10);
+        }
+
+        private void draw(double radius) {
+            this.resize(radius * 2, radius * 2);
+            System.out.println(angle);
+            angle = 360 - angle + angleOffset - 10;
+            System.out.println(angle);
+            Arc arc = new Arc(0, 0, radius, radius, angle, 20);
+            arc.setStroke(Color.BLUE);
+            arc.setStrokeWidth(3);
+            arc.setType(ArcType.OPEN);
+            this.getChildren().add(arc);
+        }
+
     }
 
 }

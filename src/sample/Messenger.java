@@ -71,8 +71,8 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
     protected void sendFromTextField(Event event) {
         if (event instanceof KeyEvent && ((KeyEvent) event).getCode() != KeyCode.ENTER) return;
         if (connection != null && connection.isOpen() && textFieldOutput.getText().length() > 0) {
-            connection.send(textFieldOutput.getText());//TODO: add "\r\n"
-            textFieldOutput.setText(null);
+            connection.send(textFieldOutput.getText() + "\r\n");
+            textFieldOutput.clear();
         }
     }
 
@@ -89,22 +89,21 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
                 builder.append((char) b);
             } else {
                 if (builder.length() > 0) {
-                    Text text = new Text(builder.toString());
-                    text.setFill(plaintext);
-                    result.add(text);
+                    result.add(getStyledText(builder.toString(), plaintext));
                     builder.delete(0, builder.length());
                 }
-                Text text = new Text("\\" + b);
-                text.setFill(invisible);
-                result.add(text);
+                result.add(getStyledText("\\" + Byte.toUnsignedInt(b), invisible));
             }
         }
-        if (builder.length() > 0) {
-            Text text = new Text(builder.toString());
-            text.setFill(plaintext);
-            result.add(text);
-        }
+        if (builder.length() > 0) result.add(getStyledText(builder.toString(), plaintext));
         return result;
+    }
+
+    private Text getStyledText(String s, Color fill) {
+        Text text = new Text(s);
+        text.setFill(fill);
+//        text.setFont(Font.font("Monospaced"));
+        return text;
     }
 
 }
