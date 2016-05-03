@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by olyadowgal on 04.02.16.
@@ -74,5 +75,10 @@ public class Command {
     public Command addArgument(Argument argument) {
         arguments.add(argument);
         return this;
+    }
+
+    public Argument getArgument(byte key) {
+        Optional<Argument> arg = arguments.stream().filter(argument -> argument.getKey() == key).findFirst();
+        return arg.isPresent() ? arg.get() : null;
     }
 }

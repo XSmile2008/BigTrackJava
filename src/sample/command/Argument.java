@@ -16,8 +16,12 @@ public class Argument {
 
     private byte[] bytes;
 
-    public Argument (byte[] bytes) {
+    public Argument(byte[] bytes) {
         this.bytes = bytes;
+    }
+
+    public Argument(byte key) {
+        this.bytes = new byte[]{key, 0};
     }
 
     public Argument(byte key, byte value) {

@@ -40,19 +40,18 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     @FXML MenuItem menuItemDisconnect;
 
     @FXML ToggleGroup toggleGroupConnectionType;
-    ToggleGroup toggleGroupSerialPort;
-    ToggleGroup toggleGroupBaudRate;
+    private ToggleGroup toggleGroupSerialPort;
+    private ToggleGroup toggleGroupBaudRate;
 
     @FXML Label labelConnectionStatus;
 
     @FXML VBox vBoxLeft;
 
-    @FXML
-    Messenger messenger = new Messenger();
+    @FXML Messenger messenger = new Messenger();
     private CompassView compass;
 
     private Connection connection;
-    int connectionType = SERIAL;
+    private int connectionType = SERIAL;
     private Parser commandParser = new Parser();
 
     @Override
@@ -74,8 +73,7 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
         });
 
         ChangeListener<Toggle> needToReconnectListener = (observable, oldValue, newValue) -> {
-            if (newValue != null && connection != null && connection.isOpen())
-                connect();
+            if (newValue != null && connection != null && connection.isOpen()) connect();
         };
 
         //Toggle group baud rate
@@ -112,7 +110,7 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
             if (connection != null && connection.isOpen()) {
                 Command command = null;
                 if (event.getSource().equals(buttonStop)) {
-                    command = new Command(Commands.STOP);
+                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.STOP));
                 } else if (event.getSource().equals(buttonForward)) {
                     command = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.FORWARD));
                 } else if (event.getSource().equals(buttonBackward)) {
@@ -122,8 +120,10 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
                 } else if (event.getSource().equals(buttonRight)) {
                     command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.RIGHT));
                 }
-                System.out.println(Arrays.toString(command.serialize()));
-                connection.send(command.serialize());
+                if (command != null) {
+                    System.out.println(Arrays.toString(command.serialize()));
+                    connection.send(command.serialize());
+                }
             }
         };
         buttonStop.setOnAction(moveEventHandler);
@@ -174,12 +174,24 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     public void onReceive(byte[] data) {
         for (Command command : commandParser.parse(data)) {
             System.out.println(Arrays.toString(command.serialize()));
-            if (command.getKey() == 'T' && command.getArguments().size() > 0) {
-                try {
-                    compass.setAzimuth(command.getArguments().get(0).getFloat());
-                } catch (ValueSizeException e) {
-                    e.printStackTrace();
-                }
+            switch (command.getKey()) {
+                case Commands.TELEMETRY:
+                    try {
+                        compass.setAzimuth(command.getArguments().get(0).getFloat());
+                    } catch (ValueSizeException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case Commands.SONAR:
+                    try {
+                        int azimuth = command.getArgument(Commands.AZIMUTH).getShort();
+                        int distance = command.getArgument(Commands.DISTANCE).getShort();
+                        long time = command.getArgument(Commands.TIME).getInt();
+                        compass.drawPoint(azimuth, distance);
+                    } catch (ValueSizeException e) {
+                        e.printStackTrace();
+                    }
+
             }
         }
     }

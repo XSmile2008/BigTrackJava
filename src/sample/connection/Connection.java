@@ -12,15 +12,11 @@ public abstract class Connection {
     protected Set<IOnSendListener> onSendListeners = new HashSet<>();
 
     public void send(byte[] data) {
-        for (IOnSendListener onSendListener : onSendListeners) {
-            onSendListener.onSend(data);
-        }
+        onSendListeners.stream().forEach(listener -> listener.onSend(data));
     }
 
     public void send(String data) {
-        for (IOnSendListener onSendListener : onSendListeners) {
-            onSendListener.onSend(data.getBytes());
-        }
+        onSendListeners.stream().forEach(listener -> listener.onSend(data.getBytes()));
     }
 
     public void addOnReceiveListener(IOnReceiveListener listener) {

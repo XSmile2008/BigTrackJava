@@ -9,6 +9,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by vladstarikov on 10.02.16.
  */
@@ -19,10 +22,12 @@ public class CompassView extends Group {
 
     private Pointer azimuthPointer;
 
+    private Group points = new Group();
+
     public CompassView() {
         size = 240;
-        azimuthPointer = new Pointer(size/2);
-        this.getChildren().add(azimuthPointer);
+        this.getChildren().add(azimuthPointer = new Pointer(size/2));
+        this.getChildren().add(points);
         draw();
     }
 
@@ -30,6 +35,7 @@ public class CompassView extends Group {
         double radius = size / 2;
         drawOuterRim(radius);
         drawTicks(12, 2, radius, radius + 10, radius + 18);
+        points.resize(size, size);
     }
 
     private Point2D polarToDecart(double angle, double distance) {
@@ -76,6 +82,12 @@ public class CompassView extends Group {
 
     public void setAzimuth(double azimuth) {
         azimuthPointer.setAngle(azimuth);
+    }
+
+    public void drawPoint(int angle, int distance) {
+        Point2D point = polarToDecart(angle + angleOffset, distance);
+        Circle circle = new Circle(point.getX(), point.getX(), 5);
+        points.getChildren().add(circle);
     }
 
     private class Pointer extends Group {

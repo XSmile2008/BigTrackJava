@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class SerialConnection extends Connection {
 
-    SerialPort serialPort;
+    private SerialPort serialPort;
 
     public SerialConnection(SerialPort serialPort, int baudRate) {
         this.serialPort = serialPort;
@@ -31,9 +31,7 @@ public class SerialConnection extends Connection {
                     if (serialPortEvent.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) return;
                     byte[] newData = new byte[serialPortEvent.getSerialPort().bytesAvailable()];
                     serialPortEvent.getSerialPort().readBytes(newData, newData.length);
-                    for (IOnReceiveListener onReceiveListener : onReceiveListeners) {
-                        onReceiveListener.onReceive(newData);
-                    }
+                    onReceiveListeners.stream().forEach(listener -> listener.onReceive(newData));
                 }
             });
         } else {
@@ -49,8 +47,7 @@ public class SerialConnection extends Connection {
 
     @Override
     public void send(String data) {
-        super.send(data);
-        serialPort.writeBytes(data.getBytes(), data.length());//TODO: check length
+        send(data.getBytes());
     }
 
     @Override

@@ -9,6 +9,12 @@ import sample.command.Argument;
 import sample.command.Command;
 import sample.command.Commands;
 import sample.command.Parser;
+import sample.connection.TCPConnection;
+
+import java.io.*;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 
 public class Main extends Application {
@@ -23,6 +29,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+        new TCPConnection("esp8266.local", 23);
     }
 
     public static void parserTest() {
