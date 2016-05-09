@@ -85,9 +85,10 @@ public class CompassView extends Group {
     }
 
     public void drawPoint(int angle, int distance) {
-        Point2D point = polarToDecart(angle + angleOffset, distance);
-        Circle circle = new Circle(point.getX(), point.getX(), 5);
+        Point2D point = polarToDecart(angle + angleOffset, distance / 2.0f);//TODO: make autosize
+        Circle circle = new Circle(point.getX(), point.getY(), 2);
         points.getChildren().add(circle);
+        if (points.getChildren().size() > 25) points.getChildren().remove(0);
     }
 
     private class Pointer extends Group {
@@ -104,15 +105,14 @@ public class CompassView extends Group {
 
         void setAngle(double angle) {
             this.angle = angle;
+            System.out.println("raw angle = " + angle);
             Arc arc = (Arc) this.getChildren().get(0);
             arc.setStartAngle(360 - angle + angleOffset - 10);
         }
 
         private void draw(double radius) {
             this.resize(radius * 2, radius * 2);
-            System.out.println(angle);
             angle = 360 - angle + angleOffset - 10;
-            System.out.println(angle);
             Arc arc = new Arc(0, 0, radius, radius, angle, 20);
             arc.setStroke(Color.BLUE);
             arc.setStrokeWidth(3);

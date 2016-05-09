@@ -29,7 +29,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-        new TCPConnection("esp8266.local", 23);
+//        new TCPConnection("esp8266.local", 23);
     }
 
     public static void parserTest() {

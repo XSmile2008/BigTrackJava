@@ -17,12 +17,14 @@ public class TCPConnection extends Connection implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Thread(this).start();
+        if (!client.isClosed() && client.isConnected()) {
+            new Thread(TCPConnection.this).start();
+        }
     }
 
     @Override
     public void run() {
-        while (client.isConnected()) {
+        while (client.isConnected() && !client.isClosed()) {
             try {
                 int available = client.getInputStream().available();
                 if (available > 0) {
@@ -59,7 +61,7 @@ public class TCPConnection extends Connection implements Runnable {
 
     @Override
     public synchronized String getTargetName() {
-        return client.toString();
+        return client.getInetAddress().toString();
     }
 
     public synchronized void close() {

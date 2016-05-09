@@ -1,6 +1,7 @@
 package sample;
 
 import com.fazecast.jSerialComm.SerialPort;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -10,10 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import sample.command.*;
-import sample.connection.Connection;
-import sample.connection.IOnReceiveListener;
-import sample.connection.IOnSendListener;
-import sample.connection.SerialConnection;
+import sample.connection.*;
 import sample.view.CompassView;
 
 import java.net.URL;
@@ -65,8 +63,12 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
         //Toggle group connection type
         toggleGroupConnectionType.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                if (((RadioMenuItem) newValue).getText().equals("Wi-Fi")) connectionType = WIFI;
-                else if (((RadioMenuItem) newValue).getText().equals("Serial")) connectionType = SERIAL;
+                if (((RadioMenuItem) newValue).getText().equals("Wi-Fi")) {
+                    connectionType = WIFI;
+                } else if (((RadioMenuItem) newValue).getText().equals("Serial")) {
+                    connectionType = SERIAL;
+                    updateSerialPorts();
+                }
                 menuSerialPort.setVisible(connectionType == SERIAL);
                 menuBaudRate.setVisible(connectionType == SERIAL);
             }
@@ -90,6 +92,11 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
         //Toggle grout serial port
         toggleGroupSerialPort = new ToggleGroup();
         toggleGroupSerialPort.selectedToggleProperty().addListener(needToReconnectListener);
+        updateSerialPorts();
+    }
+
+    private void updateSerialPorts() {
+        menuSerialPort.getItems().clear();
         SerialPort defaultSerialPort = SerialConnection.getDefaultSerialPort();
         for (SerialPort serialPort : SerialConnection.getAvailableSerialPorts()) {
             RadioMenuItem radioMenuItem = new RadioMenuItem(serialPort.getSystemPortName());
@@ -144,18 +151,19 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
         if (connection != null) connection.close();
         if (connectionType == WIFI) {
             System.out.println("Coming soon...");
+            connection = new TCPConnection("esp8266.local", 23);
         } else {
             SerialPort serialPort = (SerialPort) toggleGroupSerialPort.getSelectedToggle().getUserData();
             int baudRate = (Integer) toggleGroupBaudRate.getSelectedToggle().getUserData();
             connection = new SerialConnection(serialPort, baudRate);
-            connection.addOnSendListener(this);
-            connection.addOnReceiveListener(this);
-            connection.addOnSendListener(messenger);
-            connection.addOnReceiveListener(messenger);
-            messenger.setConnection(connection);
-            labelConnectionStatus.setTextFill(Color.FORESTGREEN);
-            labelConnectionStatus.setText("connected to " + connection.getTargetName());
         }
+        connection.addOnSendListener(this);
+        connection.addOnReceiveListener(this);
+        connection.addOnSendListener(messenger);
+        connection.addOnReceiveListener(messenger);
+        messenger.setConnection(connection);
+        labelConnectionStatus.setTextFill(Color.FORESTGREEN);
+        labelConnectionStatus.setText("connected to " + connection.getTargetName());
     }
 
     @FXML
@@ -173,7 +181,7 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     @Override
     public void onReceive(byte[] data) {
         for (Command command : commandParser.parse(data)) {
-            System.out.println(Arrays.toString(command.serialize()));
+//            System.out.println(Arrays.toString(command.serialize()));
             switch (command.getKey()) {
                 case Commands.TELEMETRY:
                     try {
@@ -186,12 +194,12 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
                     try {
                         int azimuth = command.getArgument(Commands.AZIMUTH).getShort();
                         int distance = command.getArgument(Commands.DISTANCE).getShort();
-                        long time = command.getArgument(Commands.TIME).getInt();
-                        compass.drawPoint(azimuth, distance);
+                        long time = Integer.toUnsignedLong(command.getArgument(Commands.TIME).getInt());
+                        System.out.println(time + ": azimuth = " + azimuth + ", distance = " + distance);
+                        Platform.runLater(() -> compass.drawPoint(azimuth, distance));
                     } catch (ValueSizeException e) {
                         e.printStackTrace();
                     }
-
             }
         }
     }

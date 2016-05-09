@@ -79,7 +79,7 @@ public class Argument {
 
     public short getShort() throws ValueSizeException {
         if (getSize() != Short.BYTES) throw new ValueSizeException();
-        return ByteBuffer.wrap(bytes, OFFSET, Short.BYTES).order(BYTE_ORDER).get();
+        return ByteBuffer.wrap(bytes, OFFSET, Short.BYTES).order(BYTE_ORDER).getShort();
     }
 
     public int getInt() throws ValueSizeException {

@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -21,15 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by vladstarikov on 25.03.16.
+ * Created by olga_dowgal on 25.03.16.
  */
 public class Messenger extends VBox implements IOnReceiveListener, IOnSendListener {
+
+    private static final int MAX_SIZE = 2048;
 
     private Connection connection;
 
     @FXML private TextField textFieldOutput;
     @FXML private TextFlow textFlow;
     @FXML private ScrollPane scrollPane;
+    @FXML private CheckBox checkBoxScroll;
 
     public Messenger() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("punyan/messenger.fxml"));
@@ -49,22 +53,21 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
 
     public void setConnection(Connection connection) {
         this.connection = connection;
+        textFlow.heightProperty().addListener((observable, oldValue, newValue) -> {
+            if (checkBoxScroll.isSelected()) {
+                scrollPane.setVvalue(scrollPane.getVmax());
+            }
+        });
     }
 
     @Override
     public void onSend(byte[] data) {
-        Platform.runLater(() -> {
-            textFlow.getChildren().addAll(toPrintable(data, Color.DARKRED, Color.DARKORANGE));
-            scrollPane.setVvalue(scrollPane.getVmax());
-        });
+        add(toPrintable(data, Color.DARKRED, Color.DARKORANGE));
     }
 
     @Override
-    public void onReceive(byte[] data) {
-        Platform.runLater(() -> {//TODO: replace invisible symbols by code \n\r or \13\10
-            textFlow.getChildren().addAll(toPrintable(data, Color.FORESTGREEN, Color.DARKORANGE));
-            scrollPane.setVvalue(scrollPane.getVmax());
-        });
+    public void onReceive(byte[] data) {//TODO: replace invisible symbols by code \n\r or \13\10
+        add(toPrintable(data, Color.FORESTGREEN, Color.DARKORANGE));
     }
 
     @FXML
@@ -79,6 +82,15 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
     @FXML
     protected void clear() {
         textFlow.getChildren().clear();
+    }
+
+    private void add(List<Text> texts) {
+        Platform.runLater(() -> {
+            textFlow.getChildren().addAll(texts);
+            if (textFlow.getChildren().size() > MAX_SIZE) {
+                textFlow.getChildren().remove(0, textFlow.getChildren().size() - MAX_SIZE);
+            }
+        });
     }
 
     private List<Text> toPrintable(byte[] data, Color plaintext, Color invisible) {

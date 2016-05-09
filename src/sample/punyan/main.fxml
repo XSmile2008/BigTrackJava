@@ -4,11 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.RadialGradient?>
-<?import javafx.scene.paint.Stop?>
-<?import javafx.scene.shape.Circle?>
 <?import sample.Messenger?>
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
+<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
             fx:controller="sample.MainController">
 
     <top>
@@ -77,19 +74,6 @@
             <items>
                 <Label text="Connection status:"/>
                 <Label fx:id="labelConnectionStatus" text="not connected"/>
-                <Separator orientation="VERTICAL"/>
-                <Label text="Receive"/>
-                <Circle radius="8.0" stroke="BLACK" strokeType="INSIDE">
-                    <fill>
-                        <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
-                            <stops>
-                                <Stop color="#c3c3c3"/>
-                                <Stop color="#616161" offset="1.0"/>
-                            </stops>
-                        </RadialGradient>
-                    </fill>
-                </Circle>
-                <Button mnemonicParsing="false" text="Button"/>
             </items>
         </ToolBar>
     </bottom>
