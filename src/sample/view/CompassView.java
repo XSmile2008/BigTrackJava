@@ -9,8 +9,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
-import java.util.LinkedList;
-import java.util.List;
+import static sample.utils.PointPolar.toPoint2D;
 
 /**
  * Created by vladstarikov on 10.02.16.
@@ -38,11 +37,6 @@ public class CompassView extends Group {
         points.resize(size, size);
     }
 
-    private Point2D polarToDecart(double angle, double distance) {
-        double r = angle * Math.PI / 180;
-        return new Point2D(distance * Math.cos(r), distance * Math.sin(r));
-    }
-
     private void drawOuterRim(double radius) {
         Circle circle = new Circle(radius, Color.TRANSPARENT);
         circle.setStroke(Color.BLACK);
@@ -55,12 +49,12 @@ public class CompassView extends Group {
         for (int i = 0; i < major; i++) {
             //Lines
             double majorAngle = i * majorTickStep - angleOffset;
-            Point2D startPos = polarToDecart(majorAngle, startRadius);
-            Point2D endPos = polarToDecart(majorAngle, endRadius);
+            Point2D startPos = toPoint2D(majorAngle, startRadius);
+            Point2D endPos = toPoint2D(majorAngle, endRadius);
             groupTicks.getChildren().add(new Line(startPos.getX(), startPos.getY(), endPos.getX(), endPos.getY()));
 
             //Text
-            Point2D textPos = polarToDecart(majorAngle, labelsRadius);
+            Point2D textPos = toPoint2D(majorAngle, labelsRadius);
             Text text = new Text(String.valueOf((int) (majorAngle + angleOffset)));
             text.setX(-text.getLayoutBounds().getWidth()/2.);
             text.setY(text.getLayoutBounds().getHeight()/2.7);
@@ -72,8 +66,8 @@ public class CompassView extends Group {
             //MinorTicks
             double minorTickStep = majorTickStep / (minor + 1);
             for (int j = 1; j <= minor; j++) {
-                startPos = polarToDecart(majorAngle + j * minorTickStep, startRadius);
-                endPos = polarToDecart(majorAngle + j * minorTickStep, endRadius - 2);
+                startPos = toPoint2D(majorAngle + j * minorTickStep, startRadius);
+                endPos = toPoint2D(majorAngle + j * minorTickStep, endRadius - 2);
                 groupTicks.getChildren().add(new Line(startPos.getX(), startPos.getY(), endPos.getX(), endPos.getY()));
             }
         }
@@ -85,7 +79,7 @@ public class CompassView extends Group {
     }
 
     public void drawPoint(int angle, int distance) {
-        Point2D point = polarToDecart(angle + angleOffset, distance / 2.0f);//TODO: make autosize
+        Point2D point = toPoint2D(angle + angleOffset, distance / 2.0f);//TODO: make autosize
         Circle circle = new Circle(point.getX(), point.getY(), 2);
         points.getChildren().add(circle);
         if (points.getChildren().size() > 25) points.getChildren().remove(0);

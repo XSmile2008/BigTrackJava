@@ -4,10 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
-<?import sample.Messenger?>
-<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
+<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="sample.MainController">
-
     <top>
         <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
             <menus>
@@ -26,8 +24,7 @@
                                 <ToggleGroup fx:id="toggleGroupConnectionType"/>
                             </toggleGroup>
                         </RadioMenuItem>
-                        <RadioMenuItem mnemonicParsing="false" selected="true" text="Serial"
-                                       toggleGroup="$toggleGroupConnectionType">
+                        <RadioMenuItem mnemonicParsing="false" selected="true" text="Serial" toggleGroup="$toggleGroupConnectionType">
                             <accelerator>
                                 <KeyCodeCombination alt="UP" code="S" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
                             </accelerator>
@@ -41,8 +38,7 @@
                                 <KeyCodeCombination alt="UP" code="O" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
                             </accelerator>
                         </MenuItem>
-                        <MenuItem fx:id="menuItemDisconnect" mnemonicParsing="false" onAction="#disconnect"
-                                  text="Disconnect">
+                        <MenuItem fx:id="menuItemDisconnect" mnemonicParsing="false" onAction="#disconnect" text="Disconnect">
                             <accelerator>
                                 <KeyCodeCombination alt="UP" code="D" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
                             </accelerator>
@@ -62,9 +58,16 @@
         <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <tabs>
                 <Tab text="Messenger">
-                    <Messenger fx:id="messenger"/>
+                    <content>
+                        <sample.Messenger fx:id="messenger"/>
+                    </content>
                 </Tab>
-                <Tab text="Map" fx:id="tabMap"/>
+                <Tab fx:id="tabMap" text="Map"/>
+                <Tab text="Test">
+                    <content>
+                        <sample.Stick maxWidth="320" maxHeight="320"/>
+                    </content>
+                </Tab>
             </tabs>
         </TabPane>
     </center>
@@ -79,7 +82,7 @@
     </bottom>
 
     <right>
-        <VBox fx:id="vBoxLeft" spacing="4.0" BorderPane.alignment="CENTER">
+        <VBox spacing="4.0" BorderPane.alignment="CENTER">
             <children>
                 <GridPane hgap="4.0" vgap="4.0">
                     <columnConstraints>
@@ -137,6 +140,7 @@
                     </children>
                 </GridPane>
                 <Separator prefWidth="200.0"/>
+                <sample.view.CompassView fx:id="compass"/>
             </children>
             <padding>
                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>

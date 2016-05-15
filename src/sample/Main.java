@@ -9,19 +9,14 @@ import sample.command.Argument;
 import sample.command.Command;
 import sample.command.Commands;
 import sample.command.Parser;
-import sample.connection.TCPConnection;
-
-import java.io.*;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import sample.utils.PointPolar;
 
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("punyan/main.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
@@ -29,7 +24,10 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-//        new TCPConnection("esp8266.local", 23);
+//        double x = 0;
+//        double y = 400;
+//        double angle = PointPolar.toAngle(x, y);
+//        System.out.println("x = " + x + ", y = " + y + ", angle = " + PointPolar.toAngle(x, y));
     }
 
     public static void parserTest() {

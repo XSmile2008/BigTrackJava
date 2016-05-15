@@ -36,7 +36,9 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
     @FXML private CheckBox checkBoxScroll;
 
     public Messenger() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("punyan/messenger.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("messenger.fxml"));
+        fxmlLoader.setClassLoader(this.getClass().getClassLoader());
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 

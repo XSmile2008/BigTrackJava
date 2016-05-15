@@ -46,7 +46,7 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     @FXML VBox vBoxLeft;
 
     @FXML Messenger messenger = new Messenger();
-    private CompassView compass;
+    @FXML CompassView compass;
 
     private Connection connection;
     private int connectionType = SERIAL;
@@ -56,7 +56,6 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     public void initialize(URL location, ResourceBundle resources) {
         initConnectionOptions();
         initMotionControl();
-        vBoxLeft.getChildren().add(compass = new CompassView());
     }
 
     private void initConnectionOptions() {
