@@ -24,10 +24,6 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-//        double x = 0;
-//        double y = 400;
-//        double angle = PointPolar.toAngle(x, y);
-//        System.out.println("x = " + x + ", y = " + y + ", angle = " + PointPolar.toAngle(x, y));
     }
 
     public static void parserTest() {

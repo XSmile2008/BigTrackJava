@@ -65,7 +65,7 @@
                 <Tab fx:id="tabMap" text="Map"/>
                 <Tab text="Test">
                     <content>
-                        <sample.Stick maxWidth="320" maxHeight="320"/>
+                        <sample.Stick fx:id="stick" maxWidth="320" maxHeight="320"/>
                     </content>
                 </Tab>
             </tabs>

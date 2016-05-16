@@ -3,19 +3,15 @@ package sample;
 import com.fazecast.jSerialComm.SerialPort;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import sample.command.*;
 import sample.connection.*;
 import sample.view.CompassView;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -43,10 +39,9 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
 
     @FXML Label labelConnectionStatus;
 
-    @FXML VBox vBoxLeft;
-
     @FXML Messenger messenger = new Messenger();
     @FXML CompassView compass;
+    @FXML Stick stick;
 
     private Connection connection;
     private int connectionType = SERIAL;
@@ -94,55 +89,45 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
         updateSerialPorts();
     }
 
-    private void updateSerialPorts() {
-        menuSerialPort.getItems().clear();
-        SerialPort defaultSerialPort = SerialConnection.getDefaultSerialPort();
-        for (SerialPort serialPort : SerialConnection.getAvailableSerialPorts()) {
-            RadioMenuItem radioMenuItem = new RadioMenuItem(serialPort.getSystemPortName());
-            radioMenuItem.setToggleGroup(toggleGroupSerialPort);
-            radioMenuItem.setUserData(serialPort);
-            radioMenuItem.setSelected(serialPort.getSystemPortName().equals(defaultSerialPort != null ? defaultSerialPort.getSystemPortName() : null));
-            menuSerialPort.getItems().add(radioMenuItem);
-        }
-        if (defaultSerialPort == null) {
-            List<Toggle> toggleList = toggleGroupSerialPort.getToggles();
-            if (toggleList.size() > 0) toggleList.get(0).setSelected(true);
-        }
-    }
-
     private void initMotionControl() {
-        //Motion control
-        EventHandler<ActionEvent> moveEventHandler = event -> {
-            if (connection != null && connection.isOpen()) {
-                Command command = null;
-                if (event.getSource().equals(buttonStop)) {
-                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.STOP));
-                } else if (event.getSource().equals(buttonForward)) {
-                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.FORWARD));
-                } else if (event.getSource().equals(buttonBackward)) {
-                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.BACKWARD));
-                } else if (event.getSource().equals(buttonLeft)) {
-                    command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.LEFT));
-                } else if (event.getSource().equals(buttonRight)) {
-                    command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.RIGHT));
-                }
-                if (command != null) {
-                    System.out.println(Arrays.toString(command.serialize()));
-                    connection.send(command.serialize());
-                }
-            }
-        };
-        buttonStop.setOnAction(moveEventHandler);
-        buttonForward.setOnAction(moveEventHandler);
-        buttonBackward.setOnAction(moveEventHandler);
-        buttonLeft.setOnAction(moveEventHandler);
-        buttonRight.setOnAction(moveEventHandler);
+        stick.setOnControlListener((x, y) -> {
+            Command command = new Command(Commands.MOVE);
+            command.addArgument(new Argument((byte) 'x', x));
+            command.addArgument(new Argument((byte) 'y', y));
+            if (connection != null) connection.send(command.serialize());
+        });
         sliderAzimuth.valueProperty().addListener((observable, oldValue, newValue) -> {
             Command command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.AZIMUTH, newValue.shortValue()));
             if (connection != null && connection.isOpen()) connection.send(command.serialize());
             compass.setAzimuth(newValue.doubleValue());
 
         });
+//        //Motion control
+//        EventHandler<ActionEvent> moveEventHandler = event -> {
+//            if (connection != null && connection.isOpen()) {
+//                Command command = null;
+//                if (event.getSource().equals(buttonStop)) {
+//                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.STOP));
+//                } else if (event.getSource().equals(buttonForward)) {
+//                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.FORWARD));
+//                } else if (event.getSource().equals(buttonBackward)) {
+//                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.BACKWARD));
+//                } else if (event.getSource().equals(buttonLeft)) {
+//                    command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.LEFT));
+//                } else if (event.getSource().equals(buttonRight)) {
+//                    command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.RIGHT));
+//                }
+//                if (command != null) {
+//                    System.out.println(Arrays.toString(command.serialize()));
+//                    connection.send(command.serialize());
+//                }
+//            }
+//        };
+//        buttonStop.setOnAction(moveEventHandler);
+//        buttonForward.setOnAction(moveEventHandler);
+//        buttonBackward.setOnAction(moveEventHandler);
+//        buttonLeft.setOnAction(moveEventHandler);
+//        buttonRight.setOnAction(moveEventHandler);
     }
 
     @FXML
@@ -200,6 +185,22 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
                         e.printStackTrace();
                     }
             }
+        }
+    }
+
+    private void updateSerialPorts() {
+        menuSerialPort.getItems().clear();
+        SerialPort defaultSerialPort = SerialConnection.getDefaultSerialPort();
+        for (SerialPort serialPort : SerialConnection.getAvailableSerialPorts()) {
+            RadioMenuItem radioMenuItem = new RadioMenuItem(serialPort.getSystemPortName());
+            radioMenuItem.setToggleGroup(toggleGroupSerialPort);
+            radioMenuItem.setUserData(serialPort);
+            radioMenuItem.setSelected(serialPort.getSystemPortName().equals(defaultSerialPort != null ? defaultSerialPort.getSystemPortName() : null));
+            menuSerialPort.getItems().add(radioMenuItem);
+        }
+        if (defaultSerialPort == null) {
+            List<Toggle> toggleList = toggleGroupSerialPort.getToggles();
+            if (toggleList.size() > 0) toggleList.get(0).setSelected(true);
         }
     }
 }

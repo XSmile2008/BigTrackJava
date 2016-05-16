@@ -55,7 +55,7 @@ public class Stick extends Pane {
             circleStick.setCenterY(pos.getY() + center.getY());
 
             Point2D scaled = scale(pos, constraintRadius - offset, constraintRadius - offset, scale, scale);
-            if (listener != null) listener.onControl((int) scaled.getX(), (int) scaled.getY());
+            if (listener != null) listener.onControl((short) scaled.getX(), (short) scaled.getY());
 
             labelDebug.setText(String.format(
                     "drag: width = %.2f, height = %.2f, radius = %.2f" +
@@ -73,7 +73,7 @@ public class Stick extends Pane {
         setOnMouseReleased(event -> {
             circleStick.setCenterX(center.getX());
             circleStick.setCenterY(center.getY());
-            if (listener != null) listener.onControl(0, 0);
+            if (listener != null) listener.onControl((short) 0, (short) 0);
         });
 
         draw();
@@ -116,7 +116,7 @@ public class Stick extends Pane {
 
     public interface IOnControl {
 
-        void onControl(int x, int y);
+        void onControl(short x, short y);
 
     }
 
