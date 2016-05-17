@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import sample.utils.PointPolar;
+import sample.utils.Squircle;
 
 /**
  * Created by vladstarikov on 13.05.16.
@@ -20,14 +21,17 @@ public class Stick extends Pane {
     private Circle circleConstraint = new Circle();
     private Circle circleStick = new Circle();
 
-    //Data
+    //Options
     private IOnControl listener;
+    private int scale = 255;
+    private boolean mapping = true;
+
+    //Data
     private Point2D center = new Point2D(0, 0);
     private double radius;
     private double offset;
     private double constraintRadius;
     private double angle;
-    private int scale = 255;
 
     public Stick() {
         widthProperty().addListener((observable, oldValue, newValue) -> draw());
@@ -54,7 +58,12 @@ public class Stick extends Pane {
             circleStick.setCenterX(pos.getX() + center.getX());
             circleStick.setCenterY(pos.getY() + center.getY());
 
-            Point2D scaled = scale(pos, constraintRadius - offset, constraintRadius - offset, scale, scale);
+            Point2D scaled = scale(pos, constraintRadius - offset, constraintRadius - offset, 1, 1);//Scaled
+            if (mapping) {
+                double[] mapped = Squircle.circleToSquare(scaled.getX(), scaled.getY());
+                scaled = new Point2D(mapped[0], mapped[1]);
+            }
+
             if (listener != null) listener.onControl((short) scaled.getX(), (short) scaled.getY());
 
             labelDebug.setText(String.format(
@@ -62,7 +71,7 @@ public class Stick extends Pane {
                             "\ncenter: x = %.2f, y = %.2f" +
                             "\nlayout: x = %.2f, y = %.2f" +
                             "\npos: x = %.2f, y = %.2f, angle = %.2f" +
-                            "\nscaled: x = %.2f, y = %.2f",
+                            "\nscaled" + (mapping ? "&mapped" : "") + ": x = %.2f, y = %.2f",
                     getWidth(), getHeight(), radius,
                     center.getX(), center.getY(),
                     event.getX(), event.getY(),
@@ -84,7 +93,7 @@ public class Stick extends Pane {
         this.radius = Math.min(getWidth(), getHeight()) / 2.0;
         this.constraintRadius = radius * 0.8;
         double stickRadius = radius / 2.0;
-        this.offset = stickRadius - (radius * 0.2);
+        this.offset = stickRadius - (radius - constraintRadius);
 
         //Constraint
         circleConstraint.setRadius(constraintRadius);
@@ -108,6 +117,14 @@ public class Stick extends Pane {
 
     private Point2D scale(Point2D point, double maxXFrom, double maxYFrom, double maxXTo, double maxYTo) {
         return new Point2D(point.getX() / maxXFrom * maxXTo, point.getY() / maxYFrom * maxYTo);
+    }
+
+    public boolean isMapping() {
+        return mapping;
+    }
+
+    public void setMapping(boolean mapping) {
+        this.mapping = mapping;
     }
 
     public void setOnControlListener(IOnControl listener) {
