@@ -58,13 +58,13 @@ public class Parser {
     }
 
     private int searchStart(byte[] buffer, int from) {
-        //if (from + Command.COMMAND_START.length > buffer.length) return NOT_FIND;//TODO: may be useful, add bool parameter
+        //if (from + Command.START.length > buffer.length) return NOT_FIND;//TODO: may be useful, add bool parameter
         for (int i = from; i < buffer.length; i++) {
-            if (buffer[i] == Command.COMMAND_START[0]) {
+            if (buffer[i] == Command.START[0]) {
                 int errors = 0;
-                int overflow = (i + Command.COMMAND_START.length) - buffer.length;
-                for (int j = 1; j < Command.COMMAND_START.length - (overflow > 0 ? overflow : 0); j++) {
-                    if (buffer[i + j] != Command.COMMAND_START[j]) errors++;
+                int overflow = (i + Command.START.length) - buffer.length;
+                for (int j = 1; j < Command.START.length - (overflow > 0 ? overflow : 0); j++) {
+                    if (buffer[i + j] != Command.START[j]) errors++;
                 }
                 if (errors == 0) return i;
             }
@@ -72,15 +72,15 @@ public class Parser {
         return NOT_FIND;
     }
 
-    private int searchEnd(byte[] buffer, int from) {
-        from = from - Command.COMMAND_END.length >= 0 ? from : Command.COMMAND_END.length;
+    private int searchEnd(byte[] buffer, int from) {//TODO: check this
+//        from = from - Command.END.length >= 0 ? from : Command.END.length;
         for (int i = from; i < buffer.length; i++) {
-            if (buffer[i] == Command.COMMAND_END[Command.COMMAND_END.length - 1]) {
-                int bytesMatch = 0;
-                for (int j = 0; j < Command.COMMAND_END.length; j++) {
-                    if (buffer[i - Command.COMMAND_END.length + j + 1] == Command.COMMAND_END[j]) bytesMatch++;
+            if (buffer[i] == Command.END[Command.END.length - 1]) {
+                int errors = 0;
+                for (int j = 0; j < Command.END.length; j++) {
+                    if (buffer[i - Command.END.length + j + 1] != Command.END[j]) errors++;
                 }
-                if (bytesMatch == Command.COMMAND_END.length) return i;
+                if (errors == 0) return i;
             }
         }
         return NOT_FIND;
@@ -88,7 +88,7 @@ public class Parser {
 
     private Command searchCommand() {
         for (int start = searchStart(buffer, 0); start != NOT_FIND; start = searchStart(buffer, start + 1)) {
-            for (int end = searchEnd(buffer, start + Command.EMPTY_COMMAND_LENGTH - 1); end != NOT_FIND; end = searchEnd(buffer, end + 1)) {
+            for (int end = searchEnd(buffer, start + Command.EMPTY_LENGTH - 1); end != NOT_FIND; end = searchEnd(buffer, end + 1)) {
                 Command command = Command.deserialize(Arrays.copyOfRange(buffer, start, end + 1));
                 if (command != null) {
                     trim(end + 1);

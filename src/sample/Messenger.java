@@ -95,21 +95,28 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
         });
     }
 
-    private List<Text> toPrintable(byte[] data, Color plaintext, Color invisible) {
+    private List<Text> toPrintable(byte[] data, Color plain, Color invisible) {//TODO: do not create new text if previous have same style
         List<Text> result = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
+        Color color = plain;
         for (byte b : data) {
             if ((b >= 32 && b <= 126) || b == 10 || b == 13) {
+                if (!color.equals(plain)) {
+                    result.add(getStyledText(builder.toString(), color));
+                    builder.delete(0, builder.length());
+                    color = plain;
+                }
                 builder.append((char) b);
             } else {
-                if (builder.length() > 0) {
-                    result.add(getStyledText(builder.toString(), plaintext));
+                if (!color.equals(invisible)) {
+                    result.add(getStyledText(builder.toString(), color));
                     builder.delete(0, builder.length());
+                    color = invisible;
                 }
-                result.add(getStyledText("\\" + Byte.toUnsignedInt(b), invisible));
+                builder.append("\\").append(Byte.toUnsignedInt(b));
             }
         }
-        if (builder.length() > 0) result.add(getStyledText(builder.toString(), plaintext));
+        if (builder.length() > 0) result.add(getStyledText(builder.toString(), color));
         return result;
     }
 

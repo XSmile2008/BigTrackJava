@@ -58,13 +58,16 @@ public class Stick extends Pane {
             circleStick.setCenterX(pos.getX() + center.getX());
             circleStick.setCenterY(pos.getY() + center.getY());
 
-            Point2D scaled = scale(pos, constraintRadius - offset, constraintRadius - offset, 1, 1);//Scaled
+            Point2D scaled;
             if (mapping) {
+                scaled = scale(pos, constraintRadius - offset, constraintRadius - offset, 1, 1);
                 double[] mapped = Squircle.circleToSquare(scaled.getX(), scaled.getY());
-                scaled = new Point2D(mapped[0], mapped[1]);
+                scaled = scale(new Point2D(mapped[0], -mapped[1]), 1, 1, 255, 255);//Scaled
+            } else {
+                scaled = scale(pos, constraintRadius - offset, constraintRadius - offset, 255, 255);
             }
 
-            if (listener != null) listener.onControl((short) scaled.getX(), (short) scaled.getY());
+            if (listener != null) listener.onControl((short) scaled.getX(), (short) -scaled.getY());//TODO: axis Y is inverted
 
             labelDebug.setText(String.format(
                     "drag: width = %.2f, height = %.2f, radius = %.2f" +

@@ -3,6 +3,7 @@ package sample;
 import com.fazecast.jSerialComm.SerialPort;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -12,6 +13,7 @@ import sample.connection.*;
 import sample.view.CompassView;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -102,32 +104,26 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
             compass.setAzimuth(newValue.doubleValue());
 
         });
-//        //Motion control
-//        EventHandler<ActionEvent> moveEventHandler = event -> {
-//            if (connection != null && connection.isOpen()) {
-//                Command command = null;
-//                if (event.getSource().equals(buttonStop)) {
-//                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.STOP));
-//                } else if (event.getSource().equals(buttonForward)) {
-//                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.FORWARD));
-//                } else if (event.getSource().equals(buttonBackward)) {
-//                    command = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.BACKWARD));
-//                } else if (event.getSource().equals(buttonLeft)) {
-//                    command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.LEFT));
-//                } else if (event.getSource().equals(buttonRight)) {
-//                    command = new Command(Commands.ROTATE).addArgument(new Argument(Commands.DIRACTION, Commands.RIGHT));
-//                }
-//                if (command != null) {
-//                    System.out.println(Arrays.toString(command.serialize()));
-//                    connection.send(command.serialize());
-//                }
-//            }
-//        };
-//        buttonStop.setOnAction(moveEventHandler);
-//        buttonForward.setOnAction(moveEventHandler);
-//        buttonBackward.setOnAction(moveEventHandler);
-//        buttonLeft.setOnAction(moveEventHandler);
-//        buttonRight.setOnAction(moveEventHandler);
+        //Motion control
+        EventHandler<javafx.event.ActionEvent> moveEventHandler = event -> {
+            if (connection != null && connection.isOpen()) {
+                short x = 0, y = 0;
+                if (event.getSource().equals(buttonForward)) y = 255;
+                else if (event.getSource().equals(buttonBackward)) y = -255;
+                else if (event.getSource().equals(buttonLeft)) x = -255;
+                else if (event.getSource().equals(buttonRight)) x = 255;
+                Command command = new Command(Commands.MOVE);
+                command.addArgument(new Argument((byte) 'x', x));
+                command.addArgument(new Argument((byte) 'y', y));
+                System.out.println(Arrays.toString(command.serialize()));
+                connection.send(command.serialize());
+            }
+        };
+        buttonStop.setOnAction(moveEventHandler);
+        buttonForward.setOnAction(moveEventHandler);
+        buttonBackward.setOnAction(moveEventHandler);
+        buttonLeft.setOnAction(moveEventHandler);
+        buttonRight.setOnAction(moveEventHandler);
     }
 
     @FXML
