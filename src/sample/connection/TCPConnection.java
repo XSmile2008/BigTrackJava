@@ -16,9 +16,10 @@ public class TCPConnection extends Connection implements Runnable {
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        if (!client.isClosed() && client.isConnected()) {
-            new Thread(TCPConnection.this).start();
+        } finally {
+            if (client != null && !client.isClosed() && client.isConnected()) {
+                new Thread(TCPConnection.this).start();
+            }
         }
     }
 
@@ -56,7 +57,7 @@ public class TCPConnection extends Connection implements Runnable {
     }
 
     public synchronized boolean isOpen() {
-        return client.isConnected();
+        return client != null && client.isConnected();
     }
 
     @Override

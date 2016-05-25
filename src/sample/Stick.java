@@ -67,7 +67,7 @@ public class Stick extends Pane {
                 scaled = scale(pos, constraintRadius - offset, constraintRadius - offset, 255, 255);
             }
 
-            if (listener != null) listener.onControl((short) scaled.getX(), (short) -scaled.getY());//TODO: axis Y is inverted
+            if (listener != null) listener.onControl((short) scaled.getX(), (short) scaled.getY());//TODO: axis Y is inverted
 
             labelDebug.setText(String.format(
                     "drag: width = %.2f, height = %.2f, radius = %.2f" +

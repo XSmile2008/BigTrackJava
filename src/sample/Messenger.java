@@ -33,6 +33,7 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
     @FXML private TextField textFieldOutput;
     @FXML private TextFlow textFlow;
     @FXML private ScrollPane scrollPane;
+    @FXML private CheckBox checkBoxLog;
     @FXML private CheckBox checkBoxScroll;
 
     public Messenger() {
@@ -64,12 +65,12 @@ public class Messenger extends VBox implements IOnReceiveListener, IOnSendListen
 
     @Override
     public void onSend(byte[] data) {
-        add(toPrintable(data, Color.DARKRED, Color.DARKORANGE));
+        if (checkBoxLog.isSelected()) add(toPrintable(data, Color.DARKRED, Color.DARKORANGE));
     }
 
     @Override
-    public void onReceive(byte[] data) {//TODO: replace invisible symbols by code \n\r or \13\10
-        add(toPrintable(data, Color.FORESTGREEN, Color.DARKORANGE));
+    public void onReceive(byte[] data) {
+        if (checkBoxLog.isSelected()) add(toPrintable(data, Color.FORESTGREEN, Color.DARKORANGE));
     }
 
     @FXML

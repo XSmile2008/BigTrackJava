@@ -13,9 +13,8 @@ import sample.connection.*;
 import sample.view.CompassView;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class MainController implements Initializable, IOnSendListener, IOnReceiveListener {
 
@@ -39,6 +38,7 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     private ToggleGroup toggleGroupSerialPort;
     private ToggleGroup toggleGroupBaudRate;
 
+    @FXML Label labelLifetime, labelFreeMemory;
     @FXML Label labelConnectionStatus;
 
     @FXML Messenger messenger = new Messenger();
@@ -48,6 +48,7 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     private Connection connection;
     private int connectionType = SERIAL;
     private Parser commandParser = new Parser();
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -137,13 +138,18 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
             int baudRate = (Integer) toggleGroupBaudRate.getSelectedToggle().getUserData();
             connection = new SerialConnection(serialPort, baudRate);
         }
-        connection.addOnSendListener(this);
-        connection.addOnReceiveListener(this);
-        connection.addOnSendListener(messenger);
-        connection.addOnReceiveListener(messenger);
-        messenger.setConnection(connection);
-        labelConnectionStatus.setTextFill(Color.FORESTGREEN);
-        labelConnectionStatus.setText("connected to " + connection.getTargetName());
+        if (connection.isOpen()) {
+            connection.addOnSendListener(this);
+            connection.addOnReceiveListener(this);
+            connection.addOnSendListener(messenger);
+            connection.addOnReceiveListener(messenger);
+            messenger.setConnection(connection);
+            labelConnectionStatus.setTextFill(Color.FORESTGREEN);
+            labelConnectionStatus.setText("connected to " + connection.getTargetName());
+        } else {
+            labelConnectionStatus.setTextFill(Color.DARKRED);
+            labelConnectionStatus.setText("connection error");
+        }
     }
 
     @FXML
@@ -162,24 +168,28 @@ public class MainController implements Initializable, IOnSendListener, IOnReceiv
     public void onReceive(byte[] data) {
         for (Command command : commandParser.parse(data)) {
 //            System.out.println(Arrays.toString(command.serialize()));
-            switch (command.getKey()) {
-                case Commands.TELEMETRY:
-                    try {
+            try {
+                switch (command.getKey()) {
+                    case Commands.TELEMETRY: {
                         compass.setAzimuth(command.getArguments().get(0).getFloat());
-                    } catch (ValueSizeException e) {
-                        e.printStackTrace();
+                        long time = Integer.toUnsignedLong(command.getArgument(Commands.TIME).getInt());
+                        int mem = command.getArgument(Commands.MEMORY).getShort();
+                        Platform.runLater(() -> {
+                            labelLifetime.setText(dateFormat.format(new Date(time)));
+                            labelFreeMemory.setText(String.valueOf(mem));
+                        });
+                        break;
                     }
-                    break;
-                case Commands.SONAR:
-                    try {
+                    case Commands.SONAR: {
                         int azimuth = command.getArgument(Commands.AZIMUTH).getShort();
                         int distance = command.getArgument(Commands.DISTANCE).getShort();
                         long time = Integer.toUnsignedLong(command.getArgument(Commands.TIME).getInt());
                         System.out.println(time + ": azimuth = " + azimuth + ", distance = " + distance);
                         Platform.runLater(() -> compass.drawPoint(azimuth, distance));
-                    } catch (ValueSizeException e) {
-                        e.printStackTrace();
                     }
+                }
+            } catch (ValueSizeException e) {
+                e.printStackTrace();
             }
         }
     }

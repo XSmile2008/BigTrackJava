@@ -9,8 +9,8 @@
 
         <HBox spacing="4">
             <children>
-                <TextField fx:id="textFieldOutput" onAction="#sendFromTextField" HBox.hgrow="ALWAYS"/>
-                <Button mnemonicParsing="false" onAction="#sendFromTextField" text="Send"/>
+                <TextField fx:id="textFieldOutput" onAction="#sendFromTextField" HBox.hgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#sendFromTextField" text="Send" />
             </children>
         </HBox>
 
@@ -18,17 +18,18 @@
             <children>
                 <ScrollPane fx:id="scrollPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
                     <content>
-                        <TextFlow fx:id="textFlow"/>
+                        <TextFlow fx:id="textFlow" />
                     </content>
                 </ScrollPane>
 
                 <HBox alignment="CENTER" layoutY="104.0" spacing="4.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <CheckBox fx:id="checkBoxScroll" selected="true" text="auto scroll"/>
-                        <Button onAction="#clear" opacity="0.5" text="Clean"/>
+                        <CheckBox fx:id="checkBoxLog" text="log" selected="true"/>
+                        <CheckBox fx:id="checkBoxScroll" selected="true" text="auto scroll" />
+                        <Button onAction="#clear" opacity="0.5" text="Clean" />
                     </children>
                     <padding>
-                        <Insets right="20.0" top="4.0"/>
+                        <Insets right="20.0" top="4.0" />
                     </padding>
                 </HBox>
             </children>
@@ -36,6 +37,6 @@
 
     </children>
     <padding>
-        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
     </padding>
 </fx:root>

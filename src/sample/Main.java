@@ -9,7 +9,6 @@ import sample.command.Argument;
 import sample.command.Command;
 import sample.command.Commands;
 import sample.command.Parser;
-import sample.utils.PointPolar;
 
 
 public class Main extends Application {
@@ -32,7 +31,7 @@ public class Main extends Application {
         parser.parse("Boot complete, free memory: ".getBytes());
         parser.parse("Initialising chassis, free memory: \r\n".getBytes());
 
-        Command command1 = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRACTION, Commands.FORWARD));
+        Command command1 = new Command(Commands.MOVE).addArgument(new Argument(Commands.DIRECTION, Commands.FORWARD));
         byte[] serialized1 = command1.serialize();
 
         Command command2 = new Command(Commands.STOP);

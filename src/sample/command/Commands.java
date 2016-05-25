@@ -12,10 +12,12 @@ public class Commands {
     public static final byte SONAR = 'S';
 
     //Arguments
-    public static final byte DIRACTION = 'd';
+    public static final byte DIRECTION = 'd';
     public static final byte DISTANCE = 'D';
     public static final byte AZIMUTH = 'a';
     public static final byte TIME = 't';
+
+    public static final byte MEMORY = 'm';
 
     public static final byte LEFT = 'l';
     public static final byte RIGHT = 'r';
