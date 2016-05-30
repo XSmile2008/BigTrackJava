@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import sample.command.*;
 import sample.connection.*;
 import sample.view.CompassView;
+import sample.view.Stick;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;

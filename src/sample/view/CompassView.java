@@ -2,6 +2,7 @@ package sample.view;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
@@ -14,37 +15,49 @@ import static sample.utils.PointPolar.toPoint2D;
 /**
  * Created by vladstarikov on 10.02.16.
  */
-public class CompassView extends Group {
+public class CompassView extends Pane {
 
+    private Point2D center = new Point2D(0, 0);
     private double size;
     private double angleOffset = 90;
 
     private Pointer azimuthPointer;
-
+    private Group groupTicks = new Group();
     private Group points = new Group();
 
     public CompassView() {
-        size = 240;
-        this.getChildren().add(azimuthPointer = new Pointer(size/2));
+        widthProperty().addListener((observable, oldValue, newValue) -> draw());
+        heightProperty().addListener((observable, oldValue, newValue) -> draw());
+        this.getChildren().add(azimuthPointer = new Pointer());
         this.getChildren().add(points);
+        this.getChildren().add(groupTicks);
         draw();
     }
 
     private void draw() {
-        double radius = size / 2;
-        drawOuterRim(radius);
-        drawTicks(12, 2, radius, radius + 10, radius + 18);
+        center = new Point2D(getWidth() / 2.0, getHeight() / 2.0);
+        size = Math.min(getWidth(), getHeight());
+        double radius = size / 2.0;
+        double outerRimRadius = radius - 20;
+
+        drawOuterRim(outerRimRadius);
+        drawTicks(12, 2, outerRimRadius, outerRimRadius + 10, outerRimRadius + 18);
+        azimuthPointer.draw(center, outerRimRadius);
         points.resize(size, size);
+        points.setLayoutX(center.getX());
+        points.setLayoutY(center.getY());
     }
 
     private void drawOuterRim(double radius) {
-        Circle circle = new Circle(radius, Color.TRANSPARENT);
+        Circle circle = new Circle(center.getX(), center.getY(), radius, Color.TRANSPARENT);
         circle.setStroke(Color.BLACK);
         this.getChildren().add(circle);
     }
 
     private void drawTicks(int major, int minor, double startRadius, double endRadius, double labelsRadius) {
-        Group groupTicks = new Group();
+        groupTicks.setLayoutX(center.getX());
+        groupTicks.setLayoutY(center.getY());
+        groupTicks.getChildren().clear();
         double majorTickStep = 360. / major;
         for (int i = 0; i < major; i++) {
             //Lines
@@ -71,7 +84,6 @@ public class CompassView extends Group {
                 groupTicks.getChildren().add(new Line(startPos.getX(), startPos.getY(), endPos.getX(), endPos.getY()));
             }
         }
-        this.getChildren().add(groupTicks);
     }
 
     public void setAzimuth(double azimuth) {
@@ -79,7 +91,7 @@ public class CompassView extends Group {
     }
 
     public void drawPoint(int angle, int distance) {
-        Point2D point = toPoint2D(angle + angleOffset, distance / 2.0f);//TODO: make autosize
+        Point2D point = toPoint2D(angle + angleOffset, distance / 250.0 * size / 2.0);//TODO: make autosize
         Circle circle = new Circle(point.getX(), point.getY(), 2);
         points.getChildren().add(circle);
         if (points.getChildren().size() > 25) points.getChildren().remove(0);
@@ -87,10 +99,15 @@ public class CompassView extends Group {
 
     private class Pointer extends Group {
 
+        private Arc arc = new Arc();
         private double angle = 0;
 
-        Pointer(double radius) {
-            draw(radius);
+        public Pointer() {
+            getChildren().add(this.arc = new Arc());
+            this.arc.setStroke(Color.BLUE);
+            this.arc.setLength(20);
+            this.arc.setType(ArcType.OPEN);
+            this.arc.setStrokeWidth(3);
         }
 
         double getAngle() {
@@ -104,14 +121,12 @@ public class CompassView extends Group {
             arc.setStartAngle(360 - angle + angleOffset - 10);
         }
 
-        private void draw(double radius) {
+        private void draw(Point2D center, double radius) {
             this.resize(radius * 2, radius * 2);
-            angle = 360 - angle + angleOffset - 10;
-            Arc arc = new Arc(0, 0, radius, radius, angle, 20);
-            arc.setStroke(Color.BLUE);
-            arc.setStrokeWidth(3);
-            arc.setType(ArcType.OPEN);
-            this.getChildren().add(arc);
+            arc.setRadiusX(radius);
+            arc.setRadiusY(radius);
+            arc.setCenterX(center.getX());
+            arc.setCenterY(center.getY());
         }
 
     }
