@@ -22,6 +22,7 @@ public class CompassView extends Pane {
     private double angleOffset = 90;
 
     private Pointer azimuthPointer;
+    private Circle outerRim;
     private Group groupTicks = new Group();
     private Group points = new Group();
 
@@ -38,7 +39,7 @@ public class CompassView extends Pane {
         center = new Point2D(getWidth() / 2.0, getHeight() / 2.0);
         size = Math.min(getWidth(), getHeight());
         double radius = size / 2.0;
-        double outerRimRadius = radius - 20;
+        double outerRimRadius = radius - 32;
 
         drawOuterRim(outerRimRadius);
         drawTicks(12, 2, outerRimRadius, outerRimRadius + 10, outerRimRadius + 18);
@@ -49,9 +50,10 @@ public class CompassView extends Pane {
     }
 
     private void drawOuterRim(double radius) {
-        Circle circle = new Circle(center.getX(), center.getY(), radius, Color.TRANSPARENT);
-        circle.setStroke(Color.BLACK);
-        this.getChildren().add(circle);
+        this.getChildren().remove(outerRim);//TODO:
+        outerRim = new Circle(center.getX(), center.getY(), radius, Color.TRANSPARENT);
+        outerRim.setStroke(Color.BLACK);
+        this.getChildren().add(outerRim);
     }
 
     private void drawTicks(int major, int minor, double startRadius, double endRadius, double labelsRadius) {

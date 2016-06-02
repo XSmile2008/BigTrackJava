@@ -23,11 +23,11 @@ public class Parser {
     }
 
     public List<Command> parse(byte[] data) {
-        if (buffer.length > maxBufferLength) trim(buffer.length / 2);//TODO: test this and add in Arduino side
         if (buffer.length == 0) {
             int start = searchStart(data, 0);
             if (start != NOT_FIND) buffer = Arrays.copyOfRange(data, start, data.length);//TODO: check
         } else {
+            if (buffer.length > maxBufferLength) trim(buffer.length / 2);//TODO: test this!
             byte[] newBuffer = new byte[buffer.length + data.length];
             System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
             System.arraycopy(data, 0, newBuffer, buffer.length, data.length);
